@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ eFootball Tournament</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .player-names-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-names-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .player-names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .player-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .player-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .player-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .edit-players-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-players-btn:hover {
+            background: #764ba2;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Standings Styles */
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+
+        .standings-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .standings-table th {
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .standings-table th:first-child,
+        .standings-table th:nth-child(2) {
+            text-align: left;
+        }
+
+        .standings-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .standings-table tbody tr:hover {
+            background: #f8f8f8;
+        }
+
+        .standings-table tbody tr.leader {
+            background: #fff9e6;
+            font-weight: 600;
+        }
+
+        .standings-table td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .standings-table td:first-child,
+        .standings-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .points-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            min-width: 40px;
+        }
+
+        .wins {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .losses {
+            color: #f44336;
+        }
+
+        .positive {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #f44336;
+        }
+
+        /* Schedule Styles */
+        .schedule-header {
+            margin-bottom: 25px;
+        }
+
+        .schedule-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .match-counter {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .round-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #f0f0f0;
+            border: 2px solid transparent;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .match-card.completed {
+            border-left-color: #4caf50;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .round-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            background: #fff3cd;
+            color: #856404;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .match-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .team {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .vs-text {
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .edit-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .score-input {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        .match-footer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .save-btn, .cancel-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .save-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+        }
+
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #da190b;
+        }
+
+        .edit-names-form {
+            display: none;
+        }
+
+        .edit-names-form.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .standings-table {
+                font-size: 0.8rem;
+            }
+
+            .standings-table th,
+            .standings-table td {
+                padding: 8px;
+            }
+
+            .player-names-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚽ eFootball Tournament</h1>
+            <p>6 Friends, 1 Champion</p>
+        </div>
+
+        <!-- Player Names Section -->
+        <div class="player-names-section">
+            <h3>👥 Players</h3>
+            <button class="edit-players-btn" onclick="toggleEditNames()">✏️ Edit Player Names</button>
+            
+            <div class="edit-names-form" id="editNamesForm">
+                <div class="player-names-grid">
+                    <div class="player-input-group" id="playerInputs"></div>
+                </div>
+                <button class="edit-players-btn" style="background: #4caf50;" onclick="savePlayerNames()">✓ Save Names</button>
+                <button class="edit-players-btn" style="background: #f44336; margin-left: 10px;" onclick="toggleEditNames()">✕ Cancel</button>
+            </div>
+
+            <div id="playersList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;"></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('standings')">Standings</button>
+            <button class="tab-btn" onclick="showTab('schedule')">Schedule</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Standings Tab -->
+            <div id="standings" class="tab-content active">
+                <h2>📊 Tournament Standings</h2>
+                <table class="standings-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Player</th>
+                            <th>Matches</th>
+                            <th>Wins</th>
+                            <th>Draws</th>
+                            <th>Losses</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standingsBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Schedule Tab -->
+            <div id="schedule" class="tab-content">
+                <div class="schedule-header">
+                    <h2>📅 Tournament Schedule</h2>
+                    <div class="schedule-info">
+                        <span class="match-counter">
+                            <span id="completedCount">0</span>/<span id="totalCount">15</span> matches completed
+                        </span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="round-filter" id="roundFilter">
+                    <button class="filter-btn active" onclick="filterRound('all')">All Rounds</button>
+                </div>
+
+                <div class="matches-grid" id="matchesGrid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tournament Data
+        let players = [
+            { id: 1, name: 'Player 1' },
+            { id: 2, name: 'Player 2' },
+            { id: 3, name: 'Player 3' },
+            { id: 4, name: 'Player 4' },
+            { id: 5, name: 'Player 5' },
+            { id: 6, name: 'Player 6' }
+        ];
+
+        let matches = [];
+        let standings = [];
+        let currentFilter = 'all';
+        let editingMatchId = null;
+
+        // Load players from localStorage
+        function loadPlayers() {
+            const saved = localStorage.getItem('tournamentPlayers');
+            if (saved) {
+                players = JSON.parse(saved);
+            }
+        }
+
+        // Save players to localStorage
+        function savePlayers() {
+            localStorage.setItem('tournamentPlayers', JSON.stringify(players));
+        }
+
+        // Toggle Edit Names Form
+        function toggleEditNames() {
+            const form = document.getElementById('editNamesForm');
+            form.classList.toggle('active');
+            if (form.classList.contains('active')) {
+                renderPlayerInputs();
+            }
+        }
+
+        // Render Player Input Fields
+        function renderPlayerInputs() {
+            const inputsContainer = document.getElementById('playerInputs');
+            inputsContainer.innerHTML = '';
+            
+            players.forEach((player, index) => {
+                const group = document.createElement('div');
+                group.className = 'player-input-group';
+                group.innerHTML = `
+                    <label style="display: flex; align-items: center; gap: 10px; font-weight: 600;">
+                        P${index + 1}:
+                        <input type="text" id="playerName-${index}" value="${player.name}" placeholder="Enter name">
+                    </label>
+                `;
+                inputsContainer.appendChild(group);
+            });
+        }
+
+        // Save Player Names
+        function savePlayerNames() {
+            players.forEach((player, index) => {
+                const input = document.getElementById(`playerName-${index}`);
+                if (input.value.trim()) {
+                    player.name = input.value.trim();
+                }
+            });
+
+            savePlayers();
+            toggleEditNames();
+            initTournament();
+        }
+
+        // Display Player List
+        function renderPlayersList() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = players.map((p, i) => `
+                <div style="background: #f0f0f0; padding: 10px; border-radius: 8px; text-align: center;">
+                    <strong>P${i + 1}:</strong> ${p.name}
+                </div>
+            `).join('');
+        }
+
+        // Initialize Tournament
+        function initTournament() {
+            matches = generateRoundRobinMatches(players);
+            calculateStandings();
+            renderStandings();
+            renderSchedule();
+            generateRoundFilters();
+            renderPlayersList();
+        }
+
+        // Generate Round-Robin Matches
+        function generateRoundRobinMatches(playersList) {
+            const matchList = [];
+            let matchId = 1;
+
+            for (let i = 0; i < playersList.length; i++) {
+                for (let j = i + 1; j < playersList.length; j++) {
+                    matchList.push({
+                        id: matchId,
+                        round: Math.ceil(matchId / 3),
+                        team1: playersList[i].id,
+                        team1Name: playersList[i].name,
+                        team2: playersList[j].id,
+                        team2Name: playersList[j].name,
+                        team1Score: null,
+                        team2Score: null,
+                        completed: false
+                    });
+                    matchId++;
+                }
+            }
+
+            return matchList;
+        }
+
+        // Calculate Standings
+        function calculateStandings() {
+            standings = players.map(player => ({
+                name: player.name,
+                playerId: player.id,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                goalsFor: 0,
+                goalsAgainst: 0,
+                goalDifference: 0,
+                points: 0
+            }));
+
+            matches.filter(m => m.completed).forEach(match => {
+                const team1Standing = standings.find(s => s.playerId === match.team1);
+                const team2Standing = standings.find(s => s.playerId === match.team2);
+
+                if (team1Standing && team2Standing) {
+                    team1Standing.goalsFor += match.team1Score;
+                    team1Standing.goalsAgainst += match.team2Score;
+                    team2Standing.goalsFor += match.team2Score;
+                    team2Standing.goalsAgainst += match.team1Score;
+
+                    if (match.team1Score > match.team2Score) {
+                        team1Standing.wins++;
+                        team1Standing.points += 3;
+                        team2Standing.losses++;
+                    } else if (match.team2Score > match.team1Score) {
+                        team2Standing.wins++;
+                        team2Standing.points += 3;
+                        team1Standing.losses++;
+                    } else {
+                        team1Standing.draws++;
+                        team2Standing.draws++;
+                        team1Standing.points += 1;
+                        team2Standing.points += 1;
+                    }
+
+                    team1Standing.goalDifference = team1Standing.goalsFor - team1Standing.goalsAgainst;
+                    team2Standing.goalDifference = team2Standing.goalsFor - team2Standing.goalsAgainst;
+                }
+            });
+
+            standings.sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                return b.goalDifference - a.goalDifference;
+            });
+        }
+
+        // Render Standings
+        function renderStandings() {
+            const tbody = document.getElementById('standingsBody');
+            tbody.innerHTML = standings.map((player, index) => {
+                const matches = player.wins + player.losses + player.draws;
+                return `
+                    <tr ${index === 0 ? 'class="leader"' : ''}>
+                        <td><span class="rank-badge">${index + 1}</span></td>
+                        <td>${player.name}</td>
+                        <td>${matches}</td>
+                        <td class="wins">${player.wins}</td>
+                        <td>${player.draws}</td>
+                        <td class="losses">${player.losses}</td>
+                        <td>${player.goalsFor}</td>
+                        <td>${player.goalsAgainst}</td>
+                        <td class="${player.goalDifference >= 0 ? 'positive' : 'negative'}">
+                            ${player.goalDifference >= 0 ? '+' : ''}${player.goalDifference}
+                        </td>
+                        <td><span class="points-badge">${player.points}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Generate Round Filters
+        function generateRoundFilters() {
+            const rounds = [...new Set(matches.map(m => m.round))].sort((a, b) => a - b);
+            const filterDiv = document.getElementById('roundFilter');
+            filterDiv.innerHTML = '<button class="filter-btn active" onclick="filterRound(\'all\')">All Rounds</button>';
+            
+            rounds.forEach(round => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = `Round ${round}`;
+                btn.onclick = (e) => {
+                    filterRound(round);
+                };
+                filterDiv.appendChild(btn);
+            });
+        }
+
+        // Filter Matches by Round
+        function filterRound(round) {
+            currentFilter = round;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderSchedule();
+        }
+
+        // Render Schedule
+        function renderSchedule() {
+            const filteredMatches = currentFilter === 'all'
+                ? matches
+                : matches.filter(m => m.round === currentFilter);
+
+            const totalCompleted = matches.filter(m => m.completed).length;
+            const total = matches.length;
+
+            document.getElementById('completedCount').textContent = totalCompleted;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = `${(totalCompleted / total) * 100}%`;
+
+            const grid = document.getElementById('matchesGrid');
+            grid.innerHTML = filteredMatches.map(match => {
+                if (editingMatchId === match.id) {
+                    return `
+                        <div class="match-card">
+                            <div class="match-header">
+                                <span class="round-badge">Round ${match.round}</span>
+                            </div>
+                            <div class="edit-form">
+                                <input type="number" min="0" id="score1-${match.id}" value="${match.team1Score || 0}" class="score-input" placeholder="0">
+                                <span>vs</span>
+                                <input type="number" min="0" id="score2-${match.id}" value="${match.team2Score || 0}" class="score-input" placeholder="0">
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <strong>${match.team1Name}</strong> vs <strong>${match.team2Name}</strong>
+                            </div>
+                            <div class="match-footer">
+                                <button class="save-btn" onclick="saveMatch(${match.id})">Save</button>
+                                <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="match-card ${match.completed ? 'completed' : ''}">
+                        <div class="match-header">
+                            <span class="round-badge">Round ${match.round}</span>
+                            <span class="status-badge ${match.completed ? '' : 'pending'}">
+                                ${match.completed ? '✓ Completed' : 'Pending'}
+                            </span>
+                        </div>
+                        <div class="match-content">
+                            <div class="team">
+                                <span class="team-name">${match.team1Name}</span>
+                                <span class="score">${match.team1Score !== null ? match.team1Score : '—'}</span>
+                            </div>
+                            <div class="vs-text">vs</div>
+                            <div class="team">
+                                <span class="score">${match.team2Score !== null ? match.team2Score : '—'}</span>
+                                <span class="team-name">${match.team2Name}</span>
+                            </div>
+                        </div>
+                        <div class="match-footer">
+                            <button class="action-btn" onclick="editMatch(${match.id})">
+                                ${match.completed ? 'Edit Result' : 'Add Result'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Edit Match
+        function editMatch(matchId) {
+            editingMatchId = matchId;
+            renderSchedule();
+            setTimeout(() => {
+                document.getElementById(`score1-${matchId}`).focus();
+            }, 0);
+        }
+
+        // Save Match
+        function saveMatch(matchId) {
+            const score1 = parseInt(document.getElementById(`score1-${matchId}`).value);
+            const score2 = parseInt(document.getElementById(`score2-${matchId}`).value);
+
+            if (isNaN(score1) || isNaN(score2)) {
+                alert('Please enter valid scores');
+                return;
+            }
+
+            const match = matches.find(m => m.id === matchId);
+            match.team1Score = score1;
+            match.team2Score = score2;
+            match.completed = true;
+
+            editingMatchId = null;
+            calculateStandings();
+            renderStandings();
+            renderSchedule();
+        }
+
+        // Cancel Edit
+        function cancelEdit() {
+            editingMatchId = null;
+            renderSchedule();
+        }
+
+        // Tab Navigation
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Initialize on Load
+        window.addEventListener('load', () => {
+            loadPlayers();
+            initTournament();
+        });
+    </script>
+</body>
+</html>
