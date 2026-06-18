@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFootball Tournament</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .app-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .app-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .standings-container,
+        .schedule-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.5s ease;
+        }
+
+        .standings-container h2,
+        .schedule-container h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #333;
+            text-align: center;
+        }
+
+        .standings-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .standings-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .standings-table th {
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .standings-table th.rank-col,
+        .standings-table th.player-col {
+            text-align: left;
+        }
+
+        .standings-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .standings-table tbody tr:hover {
+            background: #f8f8f8;
+        }
+
+        .standings-table tbody tr.leader {
+            background: #fff9e6;
+            font-weight: 600;
+        }
+
+        .standings-table td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .standings-table td.rank-col,
+        .standings-table td.player-col {
+            text-align: left;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .points-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            min-width: 40px;
+        }
+
+        .standings-table td.wins {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .standings-table td.losses {
+            color: #f44336;
+        }
+
+        .standings-table td.positive {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .standings-table td.negative {
+            color: #f44336;
+        }
+
+        .schedule-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .match-counter {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .round-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #f0f0f0;
+            border: 2px solid transparent;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .filter-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .match-card.completed {
+            border-left-color: #4caf50;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .round-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            background: #fff3cd;
+            color: #856404;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .match-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .team {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .vs-text {
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .score-input {
+            width: 50px;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        .match-footer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .save-btn {
+            background: #4caf50;
+            color: white;
+            flex: 1;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+        }
+
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+            flex: 1;
+        }
+
+        .cancel-btn:hover {
+            background: #da190b;
+        }
+
+        .no-data,
+        .no-matches {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .standings-container,
+            .schedule-container {
+                padding: 15px;
+            }
+
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .standings-table {
+                font-size: 0.85rem;
+            }
+
+            .standings-table th,
+            .standings-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>⚽ eFootball Tournament</h1>
+            <p>6 Friends, 1 Champion</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('standings')">Standings</button>
+            <button class="nav-tab" onclick="switchTab('schedule')">Schedule</button>
+        </nav>
+
+        <!-- Standings Tab -->
+        <div id="standings" class="content active">
+            <div class="standings-container">
+                <h2>Tournament Standings</h2>
+                <div class="standings-table-wrapper">
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th class="rank-col">#</th>
+                                <th class="player-col">Player</th>
+                                <th>Matches</th>
+                                <th>Wins</th>
+                                <th>Draws</th>
+                                <th>Losses</th>
+                                <th>GF</th>
+                                <th>GA</th>
+                                <th>GD</th>
+                                <th class="points-col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standingsTable">
+                            <tr>
+                                <td colspan="10" class="no-data">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Tab -->
+        <div id="schedule" class="content">
+            <div class="schedule-container">
+                <h2>Tournament Schedule</h2>
+                <div class="schedule-info">
+                    <span class="match-counter">
+                        <span id="completedCount">0</span>/<span id="totalCount">0</span> matches completed
+                    </span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="round-filter" id="roundFilter"></div>
+
+                <div class="matches-grid" id="matchesGrid">
+                    <div class="no-matches">Loading matches...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tournament Data
+        let tournamentData = {
+            players: [
+                { id: 1, name: 'Player 1' },
+                { id: 2, name: 'Player 2' },
+                { id: 3, name: 'Player 3' },
+                { id: 4, name: 'Player 4' },
+                { id: 5, name: 'Player 5' },
+                { id: 6, name: 'Player 6' }
+            ],
+            matches: [],
+            standings: []
+        };
+
+        // Initialize Tournament
+        function initTournament() {
+            generateMatches();
+            initializeStandings();
+            renderStandings();
+            renderSchedule();
+            renderFilters();
+        }
+
+        // Generate Round-Robin Matches
+        function generateMatches() {
+            tournamentData.matches = [];
+            let matchId = 1;
+
+            for (let i = 0; i < tournamentData.players.length; i++) {
+                for (let j = i + 1; j < tournamentData.players.length; j++) {
+                    tournamentData.matches.push({
+                        id: matchId,
+                        round: Math.ceil(matchId / 3),
+                        team1: tournamentData.players[i].id,
+                        team1Name: tournamentData.players[i].name,
+                        team2: tournamentData.players[j].id,
+                        team2Name: tournamentData.players[j].name,
+                        team1Score: null,
+                        team2Score: null,
+                        completed: false
+                    });
+                    matchId++;
+                }
+            }
+        }
+
+        // Initialize Standings
+        function initializeStandings() {
+            tournamentData.standings = tournamentData.players.map(player => ({
+                name: player.name,
+                playerId: player.id,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                goalsFor: 0,
+                goalsAgainst: 0,
+                goalDifference: 0,
+                points: 0
+            }));
+        }
+
+        // Calculate Standings
+        function calculateStandings() {
+            initializeStandings();
+
+            tournamentData.matches.forEach(match => {
+                if (match.completed) {
+                    const team1Standing = tournamentData.standings.find(s => s.playerId === match.team1);
+                    const team2Standing = tournamentData.standings.find(s => s.playerId === match.team2);
+
+                    if (team1Standing && team2Standing) {
+                        team1Standing.goalsFor += match.team1Score;
+                        team1Standing.goalsAgainst += match.team2Score;
+                        team2Standing.goalsFor += match.team2Score;
+                        team2Standing.goalsAgainst += match.team1Score;
+
+                        if (match.team1Score > match.team2Score) {
+                            team1Standing.wins++;
+                            team1Standing.points += 3;
+                            team2Standing.losses++;
+                        } else if (match.team2Score > match.team1Score) {
+                            team2Standing.wins++;
+                            team2Standing.points += 3;
+                            team1Standing.losses++;
+                        } else {
+                            team1Standing.draws++;
+                            team2Standing.draws++;
+                            team1Standing.points += 1;
+                            team2Standing.points += 1;
+                        }
+
+                        team1Standing.goalDifference = team1Standing.goalsFor - team1Standing.goalsAgainst;
+                        team2Standing.goalDifference = team2Standing.goalsFor - team2Standing.goalsAgainst;
+                    }
+                }
+            });
+
+            tournamentData.standings.sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                return b.goalDifference - a.goalDifference;
+            });
+        }
+
+        // Render Standings
+        function renderStandings() {
+            calculateStandings();
+            const tbody = document.getElementById('standingsTable');
+            
+            if (tournamentData.standings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="no-data">No data</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tournamentData.standings.map((player, index) => {
+                const matches = player.wins + player.losses + (player.draws || 0);
+                return `
+                    <tr ${index === 0 ? 'class="leader"' : ''}>
+                        <td class="rank-col"><span class="rank-badge">${index + 1}</span></td>
+                        <td class="player-col">${player.name}</td>
+                        <td>${matches}</td>
+                        <td class="wins">${player.wins}</td>
+                        <td>${player.draws || 0}</td>
+                        <td class="losses">${player.losses}</td>
+                        <td>${player.goalsFor}</td>
+                        <td>${player.goalsAgainst}</td>
+                        <td ${player.goalDifference >= 0 ? 'class="positive"' : 'class="negative"'}>
+                            ${player.goalDifference >= 0 ? '+' : ''}${player.goalDifference}
+                        </td>
+                        <td class="points-col"><span class="points-badge">${player.points}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Render Filters
+        function renderFilters() {
+            const rounds = [...new Set(tournamentData.matches.map(m => m.round))].sort((a, b) => a - b);
+            const filterDiv = document.getElementById('roundFilter');
+
+            let html = '<button class="filter-btn active" onclick="filterMatches(\'all\')">All Rounds</button>';
+            rounds.forEach(round => {
+                html += `<button class="filter-btn" onclick="filterMatches(${round})">Round ${round}</button>`;
+            });
+
+            filterDiv.innerHTML = html;
+        }
+
+        // Render Schedule
+        function renderSchedule(round = 'all') {
+            let filtered = round === 'all' 
+                ? tournamentData.matches 
+                : tournamentData.matches.filter(m => m.round === round);
+
+            const completed = filtered.filter(m => m.completed).length;
+            const total = filtered.length;
+
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressBar').style.width = total > 0 ? (completed / total) * 100 + '%' : '0%';
+
+            const grid = document.getElementById('matchesGrid');
+            grid.innerHTML = filtered.map(match => `
+                <div class="match-card ${match.completed ? 'completed' : ''}">
+                    <div class="match-header">
+                        <span class="round-badge">Round ${match.round}</span>
+                        <span class="status-badge ${match.completed ? '' : 'pending'}">
+                            ${match.completed ? '✓ Completed' : 'Pending'}
+                        </span>
+                    </div>
+                    <div class="match-content">
+                        <div class="team">
+                            <span class="team-name">${match.team1Name}</span>
+                            <span class="score">${match.team1Score !== null ? match.team1Score : '—'}</span>
+                        </div>
+                        <div class="vs-text">vs</div>
+                        <div class="team">
+                            <span class="score">${match.team2Score !== null ? match.team2Score : '—'}</span>
+                            <span class="team-name">${match.team2Name}</span>
+                        </div>
+                    </div>
+                    <div class="match-footer">
+                        <button class="action-btn edit-btn" onclick="editMatch(${match.id})">
+                            ${match.completed ? 'Edit Result' : 'Add Result'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Edit Match
+        function editMatch(matchId) {
+            const match = tournamentData.matches.find(m => m.id === matchId);
+            const score1 = prompt(`${match.team1Name} Score:`, match.team1Score || '0');
+            
+            if (score1 === null) return;
+
+            const score2 = prompt(`${match.team2Name} Score:`, match.team2Score || '0');
+            
+            if (score2 === null) return;
+
+            match.team1Score = parseInt(score1);
+            match.team2Score = parseInt(score2);
+            match.completed = true;
+
+            calculateStandings();
+            renderStandings();
+            renderSchedule();
+        }
+
+        // Filter Matches
+        function filterMatches(round) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderSchedule(round);
+        }
+
+        // Switch Tab
+        function switchTab(tab) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Start App
+        initTournament();
+    </script>
+</body>
+</html>
